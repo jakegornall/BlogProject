@@ -42,7 +42,7 @@ class Handler(webapp2.RequestHandler):
 
 class MainPage(Handler):
     def render_main(self):
-        posts = db.GqlQuery("select * from BlogPosts order by created asc")
+        posts = db.GqlQuery("select * from BlogPosts order by created desc")
         self.render("main.html", posts=posts)
 
     def get(self):
