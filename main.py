@@ -18,10 +18,15 @@ import os
 import re
 import jinja2
 import webapp2
+from google.appengine.ext import db
 
 template_dir = os.path.join(os.path.dirname(__file__), 'templates')
 jinja_env = jinja2.Environment(loader = jinja2.FileSystemLoader(template_dir), autoescape = True)
 
+class BlogPosts(db.Model):
+    title = db.TextProperty(required=True)
+    post = db.TextProperty(required=True)
+    created = db.DateTimeProperty(auto_now_add=True)
 
 class Handler(webapp2.RequestHandler):
     def write(self, *a, **kw):
@@ -36,8 +41,20 @@ class Handler(webapp2.RequestHandler):
 
 
 class MainPage(Handler):
+    def render_main(self):
+        posts = db.GqlQuery("select * from BlogPosts order by created asc")
+        self.render("main.html", posts=posts)
+
     def get(self):
-        self.render("main.html")
+        self.render_main()
+
+    def post(self):
+        title = self.request.get("title")
+        post = self.request.get("new_entry")
+
+        new_post = BlogPosts(title=title, post=post)
+        new_post.put()
+        self.redirect('/')
 
 app = webapp2.WSGIApplication([
     ('/', MainPage)

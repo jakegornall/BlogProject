@@ -4,9 +4,55 @@
 	<meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>Hello World!</title>
+	<script   src="https://code.jquery.com/jquery-2.2.4.min.js"   integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44="   crossorigin="anonymous"></script>
+    <!-- Latest compiled and minified Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <!-- Custom CSS -->
+    <style type="text/css">
+    	html, body {margin: 0 0 0 0;}
+    </style>
 
 </head>
 <body>
-	<h1>Hello World!</h1>
+	<div class="container">
+		<div class="row">
+			<div class="col-ld-12">
+				<h6>Welcome, (username)!</h3>
+			</div>	
+		</div>
+		<div class="row text-center">
+			<div class="col-ld-12">
+				<h1>New Blog Entry</h1>
+			</div>
+		</div>
+		<hr>
+		<div class="row text-center">
+			<div class="col-ld-12">
+				<form method="post">
+					<div>
+					<label>
+						<div>Title</div>
+						<input type="text" name="title">
+					</label>
+					<br>
+					<label>
+						<div>New Entry</div>
+						<textarea name="new_entry"></textarea>
+					</label>
+					<br>
+					<button>Submit New Entry</button>
+				</form>
+			</div>
+		</div>
+		<hr>
+		{% for x in posts %}
+		<div class="row">
+			<div class="col-ld-12 blog-post">
+				<h3>{{x.title}}</h3>
+				<h6>{{x.created}}</h6>
+				<p>{{x.post}}</p>
+			</div>
+		</div>
+		{% endfor %}
 </body>
 </html>
