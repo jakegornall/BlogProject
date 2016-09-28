@@ -65,6 +65,7 @@ class MainPage(Handler):
         else:
             new_post = BlogPosts(title=title, post=post)
             new_post.put()
+            time.sleep(1)
             self.redirect('/')
         
 
