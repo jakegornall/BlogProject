@@ -20,10 +20,38 @@ import re
 import jinja2
 import webapp2
 from google.appengine.ext import db
+import hashlib
+import random
 
 ### sets up jinja2 environment ###
 template_dir = os.path.join(os.path.dirname(__file__), 'templates')
 jinja_env = jinja2.Environment(loader = jinja2.FileSystemLoader(template_dir), autoescape = True)
+
+### Global Variables/Procedures ###
+########################## 
+SECRET = "87412356489266"# Key for hashing
+########################## 
+
+def make_salt():
+    return random.randint(10000,99999)
+
+def make_pass_hash(keyword, salt):
+    return str(hashlib.sha256(keyword + str(salt)).hexdigest())
+
+def make_cookie_hash(cookie):
+    return str(hashlib.sha256(cookie + SECRET).hexdigest())
+
+def make_cookie(cookie):
+    return cookie + "," + make_cookie_hash(cookie)
+
+def check_cookie(cookie):
+    (cookieVal,hashStr) = cookie.split(',')
+    if make_cookie_hash(cookieVal) == hashStr:
+        return cookieVal
+    else:
+        return None
+
+
 
 # DATABASE ENTITIES
 ############################################################
@@ -40,7 +68,8 @@ class BlogPosts(db.Model):
 ####################
 class Users(db.Model):
     username = db.TextProperty(required=True)
-    password = db.StringProperty(required=True)
+    password = db.TextProperty(required=True) # stored as hash
+    salt = db.IntegerProperty(required=True) # for password validation
 ###########################################################
 
 ### helper procedures for page handlers ###
@@ -94,11 +123,63 @@ class NewEntry(Handler):
         else:
             new_post = BlogPosts(title=title, post=post)
             new_post.put()
-            time.sleep(1)
+            time.sleep(1) # allows time for new db entry to post
             self.redirect('/')
+
+############################
+### Sign Up Page Handler ###
+############################
+class SignUpPage(Handler):
+    def render_main(self, username="", error="", users=""):
+        self.render("signup.html", username=username, error=error, users=users)
+
+    def get(self):
+        self.render_main()
+
+    def post(self):
+        salt = make_salt()
+        username = self.request.get("username")
+        password = self.request.get("password")
+        users = db.GqlQuery("SELECT * FROM Users")
+        all_usernames = []
+        for x in users:
+            all_usernames.append(x.username)
+        passwordHashed = make_pass_hash(password, salt)
+        
+
+        if not username and not password:
+            error = "username and password required"
+            self.render_main(error=error)
+        elif username and not password:
+            error = "password required"
+            self.render_main(error=error)
+        elif not username and password:
+            error = "username required"
+            self.render_main(error=error)
+        elif username in all_usernames:
+            error = "username already exists"
+            self.render_main(error=error)
+        else:
+            user = Users(username=username, password=passwordHashed, salt=salt)
+            user.put()
+            time.sleep(1)
+            q = Users.all()
+            user = []
+            for x in q:
+                if x.username == username:
+                    user.append(x.key().id())
+                    break
+            userID = user[0]
+            self.response.headers.add_header('Set-Cookie', 'userID=%s' % make_cookie(userID))
+            self.redirect('/')
+
+
+
 ##########################################################################
         
 ### Maps URLs to Handlers ###
 app = webapp2.WSGIApplication([
-    ('/', MainPage), ('/newEntry', NewEntry)
+    ('/', MainPage),
+    ('/newEntry', NewEntry),
+    ('/signup', SignUpPage)
 ], debug=True)

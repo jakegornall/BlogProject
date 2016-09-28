@@ -3,24 +3,24 @@
 <hr>
 <div class="row text-center">
 	<div class="col-md-12">
-        <h1>New Blog Entry</h1>
+        <h1>Sign Up</h1>
     </div>
 </div>
 <div class="row text-center">
     <div class="col-md-12">
         <form method="post">
             <label>
-                <div>Title</div>
-                <input type="text" name="subject">
+                <div>Username:</div>
+                <input type="text" name="username" value="{{usernameVal}}">
             </label>
             <br>
             <label>
-                <div>New Entry</div>
-                <textarea rows="15" cols="75" name="content"></textarea>
+                <div>Password:</div>
+                <input type="text" name="password">
             </label>
             <br>
             <p class="error-message">{{error}}</p>
-            <button>Submit New Entry</button>
+            <button>Sign Up</button>
         </form>
     </div>
 </div>
