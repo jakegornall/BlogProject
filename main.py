@@ -28,7 +28,7 @@ jinja_env = jinja2.Environment(loader = jinja2.FileSystemLoader(template_dir), a
 # DATABASE ENTITIES
 ############################################################
 ########################
-### Blog Post Entity ###
+### Blog Posts Entity ###
 ########################
 class BlogPosts(db.Model):
     title = db.TextProperty(required=True)
@@ -68,7 +68,6 @@ class MainPage(Handler):
     def get(self):
         self.render_main()
 
-
 ##############################
 ### New Entry Page Handler ###
 ##############################
@@ -99,7 +98,7 @@ class NewEntry(Handler):
             self.redirect('/')
 ##########################################################################
         
-### Mapping ###
+### Maps URLs to Handlers ###
 app = webapp2.WSGIApplication([
     ('/', MainPage), ('/newEntry', NewEntry)
 ], debug=True)

@@ -11,6 +11,7 @@
     <style type="text/css">
         html, body {margin: 5px 5px 5px 5px; background-color: lightblue;}
         .post-div {padding: 10px;}
+        .post-div h3 {margin-bottom: -8px; padding-bottom: -10px;}
         .btm-border {border-bottom: 2px solid grey;}
         .error-message {color:red;}
     </style>
@@ -31,20 +32,6 @@
             </div>  
         </div>
     {% block content %}
-        <hr>
-        {% for x in posts %}
-        <div class="row text-left">
-            <div class="col-md-2">
-            </div>
-            <div class="post-div col-md-8 btm-border">
-                <h3>{{x.title}}</h3>
-                <h6>{{x.created}}</h6>
-                <per>{{x.post}}</per>
-            </div>
-            <div class="col-md-2">
-            </div>
-        </div>
-        {% endfor %} 
     {% endblock %}
 </body>
 </html>
