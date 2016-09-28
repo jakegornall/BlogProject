@@ -21,18 +21,29 @@ import jinja2
 import webapp2
 from google.appengine.ext import db
 
+### sets up jinja2 environment ###
 template_dir = os.path.join(os.path.dirname(__file__), 'templates')
 jinja_env = jinja2.Environment(loader = jinja2.FileSystemLoader(template_dir), autoescape = True)
 
+# DATABASE ENTITIES
+############################################################
+########################
+### Blog Post Entity ###
+########################
 class BlogPosts(db.Model):
     title = db.TextProperty(required=True)
     post = db.TextProperty(required=True)
     created = db.DateTimeProperty(auto_now_add=True)
 
+####################
+### Users Entity ###
+####################
 class Users(db.Model):
     username = db.TextProperty(required=True)
     password = db.StringProperty(required=True)
+###########################################################
 
+### helper procedures for page handlers ###
 class Handler(webapp2.RequestHandler):
     def write(self, *a, **kw):
         self.response.out.write(*a, **kw)
@@ -44,7 +55,11 @@ class Handler(webapp2.RequestHandler):
     def render(self, template, **kw):
         self.write(self.render_str(template, **kw))
 
-
+### PAGE HANDLERS
+############################################################################
+#########################
+### Home Page Handler ###
+#########################
 class MainPage(Handler):
     def render_main(self, posts=""):
         posts = db.GqlQuery("select * from BlogPosts order by created desc")
@@ -53,6 +68,10 @@ class MainPage(Handler):
     def get(self):
         self.render_main()
 
+
+##############################
+### New Entry Page Handler ###
+##############################
 class NewEntry(Handler):
     def render_main(self, error=""):
         self.render("newEntry.html", error=error)
@@ -78,9 +97,9 @@ class NewEntry(Handler):
             new_post.put()
             time.sleep(1)
             self.redirect('/')
-
+##########################################################################
         
-
+### Mapping ###
 app = webapp2.WSGIApplication([
     ('/', MainPage), ('/newEntry', NewEntry)
 ], debug=True)
