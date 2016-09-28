@@ -9,7 +9,7 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
     <!-- Custom CSS -->
     <style type="text/css">
-        html, body {margin: 5px 5px 5px 5px;}
+        html, body {margin: 5px 5px 5px 5px; background-color: lightgrey;}
         .btm-border {border-bottom: 2px solid grey;}
     </style>
 
@@ -33,14 +33,15 @@
                     <div>
                     <label>
                         <div>Title</div>
-                        <input type="text" name="title">
+                        <input type="text" name="subject">
                     </label>
                     <br>
                     <label>
                         <div>New Entry</div>
-                        <textarea name="new_entry"></textarea>
+                        <textarea name="content"></textarea>
                     </label>
                     <br>
+                    <p class="error-message">{{error}}</p>
                     <button>Submit New Entry</button>
                 </form>
             </div>

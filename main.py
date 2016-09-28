@@ -41,20 +41,28 @@ class Handler(webapp2.RequestHandler):
 
 
 class MainPage(Handler):
-    def render_main(self):
+    def render_main(self, posts="", error=""):
         posts = db.GqlQuery("select * from BlogPosts order by created desc")
-        self.render("main.html", posts=posts)
+        self.render("main.html", posts=posts, error=error)
 
     def get(self):
         self.render_main()
 
     def post(self):
-        title = self.request.get("title")
-        post = self.request.get("new_entry")
+        title = self.request.get("subject")
+        post = self.request.get("content")
 
-        new_post = BlogPosts(title=title, post=post)
-        new_post.put()
-        self.redirect('/')
+        if not title and not post:
+            error = "must enter a title"
+            self.render_main(error=error)
+        elif title and not post:
+            error = "must enter a post"
+            self.render_main(error=error)
+        else:
+            new_post = BlogPosts(title=title, post=post)
+            new_post.put()
+            self.redirect('/')
+        
 
 app = webapp2.WSGIApplication([
     ('/', MainPage)
