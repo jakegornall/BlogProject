@@ -3,22 +3,27 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hello World!</title>
+    <title>Jake's Blog Site</title>
     <script   src="https://code.jquery.com/jquery-2.2.4.min.js"   integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44="   crossorigin="anonymous"></script>
     <!-- Latest compiled and minified Bootstrap CSS -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
     <!-- Custom CSS -->
     <style type="text/css">
-        html, body {margin: 5px 5px 5px 5px; background-color: lightgrey;}
+        html, body {margin: 5px 5px 5px 5px; background-color: lightblue;}
+        .post-div {padding: 10px;}
         .btm-border {border-bottom: 2px solid grey;}
+        .error-message {color:red;}
     </style>
 
 </head>
 <body>
     <div class="container">
         <div class="row">
-            <div class="col-md-12">
+            <div class="col-md-6">
                 <h6>Welcome, (username)!</h3>
+            </div>
+            <div class="col-md-6 text-right">
+                <h6>Sign In | Sign Up</h6>
             </div>  
         </div>
         <div class="row text-center">
@@ -38,7 +43,7 @@
                     <br>
                     <label>
                         <div>New Entry</div>
-                        <textarea name="content"></textarea>
+                        <textarea rows="15" cols="75" name="content"></textarea>
                     </label>
                     <br>
                     <p class="error-message">{{error}}</p>
@@ -49,14 +54,14 @@
         <hr>
         {% for x in posts %}
         <div class="row text-left">
-            <div class="col-md-4">
+            <div class="col-md-2">
             </div>
-            <div class="col-md-4 btm-border">
+            <div class="post-div col-md-8 btm-border">
                 <h3>{{x.title}}</h3>
                 <h6>{{x.created}}</h6>
-                <p>{{x.post}}</p>
+                <per>{{x.post}}</per>
             </div>
-            <div class="col-md-4">
+            <div class="col-md-2">
             </div>
         </div>
         {% endfor %}   

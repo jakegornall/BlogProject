@@ -15,6 +15,7 @@
 # limitations under the License.
 #
 import os
+import time
 import re
 import jinja2
 import webapp2
@@ -53,10 +54,13 @@ class MainPage(Handler):
         post = self.request.get("content")
 
         if not title and not post:
-            error = "must enter a title"
+            error = "must enter a title and post!"
             self.render_main(error=error)
         elif title and not post:
-            error = "must enter a post"
+            error = "must enter a post!"
+            self.render_main(error=error)
+        elif not title and post:
+            error = "must enter a title!"
             self.render_main(error=error)
         else:
             new_post = BlogPosts(title=title, post=post)
