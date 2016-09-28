@@ -29,6 +29,10 @@ class BlogPosts(db.Model):
     post = db.TextProperty(required=True)
     created = db.DateTimeProperty(auto_now_add=True)
 
+class Users(db.Model):
+    username = db.TextProperty(required=True)
+    password = db.StringProperty(required=True)
+
 class Handler(webapp2.RequestHandler):
     def write(self, *a, **kw):
         self.response.out.write(*a, **kw)
