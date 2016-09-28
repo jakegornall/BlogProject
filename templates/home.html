@@ -1,0 +1,29 @@
+{% extends "main.html" %}
+{% block content %}
+<div class="row">
+	<div class="col-md-12 text-center">
+		<button id="NewEntryBtn" class="btn btn-primary btn-lg">CREATE NEW BLOG POST</button>
+		<script type="text/javascript">
+			$(document).ready(function() {
+				$("#NewEntryBtn").click(function(){
+					window.location.replace("http://localhost:8080/newEntry");	
+				});
+			});
+		</script>
+	</div>
+</div>
+<hr>
+{% for x in posts %}
+<div class="row text-left">
+    <div class="col-md-2">
+    </div>
+    <div class="post-div col-md-8 btm-border">
+        <h3>{{x.title}}</h3>
+        <h6>{{x.created}}</h6>
+        <per>{{x.post}}</per>
+    </div>
+    <div class="col-md-2">
+    </div>
+</div>
+{% endfor %}
+{% endblock %}

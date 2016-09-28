@@ -42,9 +42,16 @@ class Handler(webapp2.RequestHandler):
 
 
 class MainPage(Handler):
-    def render_main(self, posts="", error=""):
+    def render_main(self, posts=""):
         posts = db.GqlQuery("select * from BlogPosts order by created desc")
-        self.render("main.html", posts=posts, error=error)
+        self.render("home.html", posts=posts)
+
+    def get(self):
+        self.render_main()
+
+class NewEntry(Handler):
+    def render_main(self, error=""):
+        self.render("newEntry.html", error=error)
 
     def get(self):
         self.render_main()
@@ -67,8 +74,9 @@ class MainPage(Handler):
             new_post.put()
             time.sleep(1)
             self.redirect('/')
+
         
 
 app = webapp2.WSGIApplication([
-    ('/', MainPage)
+    ('/', MainPage), ('/newEntry', NewEntry)
 ], debug=True)
