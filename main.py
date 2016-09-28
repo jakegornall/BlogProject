@@ -36,16 +36,16 @@ def make_salt():
     return random.randint(10000,99999)
 
 def make_pass_hash(keyword, salt):
-    return str(hashlib.sha256(keyword + str(salt)).hexdigest())
+    return str(hashlib.sha256(str(keyword) + str(salt)).hexdigest())
 
 def make_cookie_hash(cookie):
-    return str(hashlib.sha256(cookie + SECRET).hexdigest())
+    return str(hashlib.sha256(str(cookie) + SECRET).hexdigest())
 
 def make_cookie(cookie):
-    return cookie + "," + make_cookie_hash(cookie)
+    return str(cookie) + "|" + make_cookie_hash(cookie)
 
 def check_cookie(cookie):
-    (cookieVal,hashStr) = cookie.split(',')
+    (cookieVal,hashStr) = cookie.split('|')
     if make_cookie_hash(cookieVal) == hashStr:
         return cookieVal
     else:
@@ -90,9 +90,16 @@ class Handler(webapp2.RequestHandler):
 ### Home Page Handler ###
 #########################
 class MainPage(Handler):
-    def render_main(self, posts=""):
+    def render_main(self, posts="", username=""):
+        userID = check_cookie(self.request.cookies.get("userID"))
+        username = None
+        if userID != None:
+            user_key = db.Key.from_path('Users', long(userID))
+            user = db.get(user_key)
+            username = user.username
+
         posts = db.GqlQuery("select * from BlogPosts order by created desc")
-        self.render("home.html", posts=posts)
+        self.render("home.html", posts=posts, username=username)
 
     def get(self):
         self.render_main()
@@ -101,11 +108,17 @@ class MainPage(Handler):
 ### New Entry Page Handler ###
 ##############################
 class NewEntry(Handler):
-    def render_main(self, error=""):
-        self.render("newEntry.html", error=error)
+    def render_main(self, error="", username=""):
+        self.render("newEntry.html", error=error, username=username)
 
     def get(self):
-        self.render_main()
+        userID = check_cookie(self.request.cookies.get("userID"))
+        username = None
+        if userID != None:
+            user_key = db.Key.from_path('Users', long(userID))
+            user = db.get(user_key)
+            username = user.username
+        self.render_main(username=username)
 
     def post(self):
         title = self.request.get("subject")

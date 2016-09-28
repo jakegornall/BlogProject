@@ -21,7 +21,7 @@
     <div class="container">
         <div class="row">
             <div class="col-md-6">
-                {% if not username %}
+                {% if username == None %}
                 <h6>Please Sign In</h6>
                 {% else %}
                 <h6>Welcome, {{username}}!</h3>
