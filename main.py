@@ -32,6 +32,10 @@ jinja_env = jinja2.Environment(loader = jinja2.FileSystemLoader(template_dir), a
 SECRET = "87412356489266"# Key for hashing
 ########################## 
 
+################################### Host URL
+hostURL = "http://localhost:8080" # update before deploying site
+###################################
+
 def make_salt():
     return random.randint(10000,99999)
 
@@ -62,6 +66,7 @@ class BlogPosts(db.Model):
     title = db.TextProperty(required=True)
     post = db.TextProperty(required=True)
     created = db.DateTimeProperty(auto_now_add=True)
+    userID = db.IntegerProperty(required=True)
     username = db.TextProperty(required=True)
 
 ####################
@@ -106,8 +111,8 @@ class MainPage(Handler):
         else:
             self.redirect('/signup')
 
-        posts = db.GqlQuery("select * from BlogPosts order by created desc")
-        self.render("home.html", posts=posts, username=username)
+        posts = db.GqlQuery("SELECT * FROM BlogPosts WHERE userID=%s ORDER BY created DESC" % int(userID))
+        self.render("home.html", posts=posts, username=username, hostURL=hostURL)
 
     def get(self):
         self.render_main()
@@ -117,7 +122,7 @@ class MainPage(Handler):
 ##############################
 class NewEntry(Handler):
     def render_main(self, error="", username=""):
-        self.render("newEntry.html", error=error, username=username)
+        self.render("newEntry.html", error=error, username=username, hostURL=hostURL)
 
     def get(self):
         userIDcookie = self.request.cookies.get("userID")
@@ -163,17 +168,57 @@ class NewEntry(Handler):
             error = "must enter a title!"
             self.render_main(error=error)
         else:
-            new_post = BlogPosts(title=title, post=post, username=username)
+            new_post = BlogPosts(title=title, post=post, userID=int(userID), username=username)
             new_post.put()
             time.sleep(1) # allows time for new db entry to post
             self.redirect('/')
+
+############################
+### Sign In Page Handler ###
+############################
+# class SignInPage(Handler):
+#     def render_main(self, username="", error="", users=""):
+#         self.render("signin.html", username=username, error=error, users=users, hostURL=hostURL)
+
+#     def get(self):
+#         self.render_main()
+
+#     def post(self):
+#         username = self.request.get("username")
+#         password = self.request.get("password")
+#         user = db.GqlQuery("SELECT * FROM Users WHERE username=:1", username).get()
+#         passworHash = user.password
+#         userSalt = user.salt
+        
+#         # handles user input on signin form:
+#         if not username and not password:
+#             error = "username and password required"
+#             self.render_main(error=error)
+#         elif username and not password:
+#             error = "password required"
+#             self.render_main(error=error)
+#         elif not username and password:
+#             error = "username required"
+#             self.render_main(error=error)
+#         elif not userInfo:
+#             error = "username does not exists"
+#             self.render_main(error=error)
+#         elif passwordHash != make_pass_hash(password, userSalt):
+#             error = "incorrect password"
+#             self.render_main(error=error)
+#         else:
+#             self.response.headers.add_header('Set-Cookie', 'userID=%s' % make_cookie(userID))
+#             self.redirect('/')
+
+
+
 
 ############################
 ### Sign Up Page Handler ###
 ############################
 class SignUpPage(Handler):
     def render_main(self, username="", error="", users=""):
-        self.render("signup.html", username=username, error=error, users=users)
+        self.render("signup.html", username=username, error=error, users=users, hostURL=hostURL)
 
     def get(self):
         self.render_main()
@@ -225,7 +270,7 @@ class DBpage(Handler):
     def get(self):
         users = Users.all()
         blogposts = BlogPosts.all()
-        self.render("db.html", users=users, blogposts=blogposts)
+        self.render("db.html", users=users, blogposts=blogposts, hostURL=hostURL)
 
     def post(self):
         usersCheck = self.request.get("users")
@@ -248,7 +293,7 @@ class DBpage(Handler):
 
         users = Users.all()
         blogposts = BlogPosts.all()
-        self.render("db.html", users=users, blogposts=blogposts)
+        self.render("db.html", users=users, blogposts=blogposts, hostURL=hostURL)
 
 ######################
 ### Logout Handler ###
@@ -257,6 +302,8 @@ class Logout(Handler):
     def get(self):
         self.response.headers.add_header('Set-Cookie', 'userID=')
         self.redirect('/signup')
+
+
 
 ##########################################################################
         
@@ -267,4 +314,5 @@ app = webapp2.WSGIApplication([
     ('/signup', SignUpPage),
     ('/db', DBpage),
     ('/logout', Logout)
+    # ('/signin', SignInPage)
 ], debug=True)

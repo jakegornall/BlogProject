@@ -1,0 +1,27 @@
+{% extends "main.html" %}
+{% block content %}
+<hr>
+<div class="row text-center">
+	<div class="col-md-12">
+        <h1>Sign In</h1>
+    </div>
+</div>
+<div class="row text-center">
+    <div class="col-md-12">
+        <form method="post">
+            <label>
+                <div>Username:</div>
+                <input type="text" name="username" value="{{usernameVal}}">
+            </label>
+            <br>
+            <label>
+                <div>Password:</div>
+                <input type="password" name="password">
+            </label>
+            <br>
+            <p class="error-message">{{error}}</p>
+            <button>Sign In</button>
+        </form>
+    </div>
+</div>
+{% endblock %}
