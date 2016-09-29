@@ -23,14 +23,17 @@
         <div class="row">
             <div class="col-md-6">
                 {% if not username %}
-                <h6>Sign In | Sign Up</h6>
+                <h6>Sign In | <a href="http://localhost:8080/signup">Sign Up</a></h6>
                 {% else %}
                 <h6>Welcome, {{username}}!</h3>
                 {% endif %}
             </div>
             <div class="col-md-6 text-right">
                 {% if username %}
-                <h6>Logout</h6>
+                <form action="/logout">
+                    <input type="hidden" name="logout">
+                    <button>Logout</button>
+                </form>
                 {% endif %}
 
             </div>  

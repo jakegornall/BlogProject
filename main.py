@@ -250,6 +250,13 @@ class DBpage(Handler):
         blogposts = BlogPosts.all()
         self.render("db.html", users=users, blogposts=blogposts)
 
+######################
+### Logout Handler ###
+######################
+class Logout(Handler):
+    def get(self):
+        self.response.headers.add_header('Set-Cookie', 'userID=')
+        self.redirect('/signup')
 
 ##########################################################################
         
@@ -258,5 +265,6 @@ app = webapp2.WSGIApplication([
     ('/', MainPage),
     ('/newEntry', NewEntry),
     ('/signup', SignUpPage),
-    ('/db', DBpage)
+    ('/db', DBpage),
+    ('/logout', Logout)
 ], debug=True)
