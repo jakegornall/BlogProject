@@ -62,6 +62,7 @@ class BlogPosts(db.Model):
     title = db.TextProperty(required=True)
     post = db.TextProperty(required=True)
     created = db.DateTimeProperty(auto_now_add=True)
+    username = db.TextProperty(required=True)
 
 ####################
 ### Users Entity ###
@@ -135,6 +136,20 @@ class NewEntry(Handler):
         self.render_main(username=username)
 
     def post(self):
+        userIDcookie = self.request.cookies.get("userID")
+        userID = ""
+        username = None
+        
+        # if browser does not contain a userID cookie
+        # redirect to the signup page
+        if userIDcookie != None:
+            userID = check_cookie(userIDcookie)
+            user_key = db.Key.from_path('Users', long(userID))
+            user = db.get(user_key)
+            username = user.username
+        else:
+            self.redirect('/signup')
+
         title = self.request.get("subject")
         post = self.request.get("content")
 
@@ -148,7 +163,7 @@ class NewEntry(Handler):
             error = "must enter a title!"
             self.render_main(error=error)
         else:
-            new_post = BlogPosts(title=title, post=post)
+            new_post = BlogPosts(title=title, post=post, username=username)
             new_post.put()
             time.sleep(1) # allows time for new db entry to post
             self.redirect('/')
@@ -203,9 +218,9 @@ class SignUpPage(Handler):
             self.response.headers.add_header('Set-Cookie', 'userID=%s' % make_cookie(userID))
             self.redirect('/')
 
-###############################
-### DB control Page Handler ###
-###############################
+######################################################
+### DB control Page Handler (for development only) ###
+######################################################
 class DBpage(Handler):
     def get(self):
         users = Users.all()
