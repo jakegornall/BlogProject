@@ -203,6 +203,37 @@ class SignUpPage(Handler):
             self.response.headers.add_header('Set-Cookie', 'userID=%s' % make_cookie(userID))
             self.redirect('/')
 
+###############################
+### DB control Page Handler ###
+###############################
+class DBpage(Handler):
+    def get(self):
+        users = Users.all()
+        blogposts = BlogPosts.all()
+        self.render("db.html", users=users, blogposts=blogposts)
+
+    def post(self):
+        usersCheck = self.request.get("users")
+        postsCheck = self.request.get("posts")
+        users = Users.all()
+        blogposts = BlogPosts.all()
+        userKeys = []
+        postKeys = []
+        for user in users:
+            userKeys.append(user.key())
+        for post in blogposts:
+            postKeys.append(post.key())
+
+        if usersCheck:
+            db.delete(userKeys)
+        if postsCheck:
+            db.delete(postKeys)
+
+        time.sleep(2)
+
+        users = Users.all()
+        blogposts = BlogPosts.all()
+        self.render("db.html", users=users, blogposts=blogposts)
 
 
 ##########################################################################
@@ -211,5 +242,6 @@ class SignUpPage(Handler):
 app = webapp2.WSGIApplication([
     ('/', MainPage),
     ('/newEntry', NewEntry),
-    ('/signup', SignUpPage)
+    ('/signup', SignUpPage),
+    ('/db', DBpage)
 ], debug=True)
