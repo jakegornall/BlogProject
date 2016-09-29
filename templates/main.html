@@ -21,14 +21,17 @@
     <div class="container">
         <div class="row">
             <div class="col-md-6">
-                {% if username == None %}
-                <h6>Please Sign In</h6>
+                {% if not username %}
+                <h6>Sign In | Sign Up</h6>
                 {% else %}
                 <h6>Welcome, {{username}}!</h3>
                 {% endif %}
             </div>
             <div class="col-md-6 text-right">
-                <h6>Sign In | Sign Up</h6>
+                {% if username %}
+                <h6>Logout</h6>
+                {% endif %}
+
             </div>  
         </div>
     {% block content %}

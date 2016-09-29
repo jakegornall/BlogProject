@@ -94,7 +94,7 @@ class MainPage(Handler):
         userIDcookie = self.request.cookies.get("userID")
         userID = ""
         username = None
-        
+
         # if browser does not contain a userID cookie
         # redirect to the signup page
         if userIDcookie != None:
@@ -119,12 +119,19 @@ class NewEntry(Handler):
         self.render("newEntry.html", error=error, username=username)
 
     def get(self):
-        userID = check_cookie(self.request.cookies.get("userID"))
+        userIDcookie = self.request.cookies.get("userID")
+        userID = ""
         username = None
-        if userID != None:
+        
+        # if browser does not contain a userID cookie
+        # redirect to the signup page
+        if userIDcookie != None:
+            userID = check_cookie(userIDcookie)
             user_key = db.Key.from_path('Users', long(userID))
             user = db.get(user_key)
             username = user.username
+        else:
+            self.redirect('/signup')
         self.render_main(username=username)
 
     def post(self):
@@ -162,11 +169,14 @@ class SignUpPage(Handler):
         password = self.request.get("password")
         users = db.GqlQuery("SELECT * FROM Users")
         all_usernames = []
+
+        # as website scales this would need to change
+        # to use either a db query or index.
         for x in users:
             all_usernames.append(x.username)
         passwordHashed = make_pass_hash(password, salt)
         
-
+        # handles user input on signup form:
         if not username and not password:
             error = "username and password required"
             self.render_main(error=error)
