@@ -91,12 +91,19 @@ class Handler(webapp2.RequestHandler):
 #########################
 class MainPage(Handler):
     def render_main(self, posts="", username=""):
-        userID = check_cookie(self.request.cookies.get("userID"))
+        userIDcookie = self.request.cookies.get("userID")
+        userID = ""
         username = None
-        if userID != None:
+        
+        # if browser does not contain a userID cookie
+        # redirect to the signup page
+        if userIDcookie != None:
+            userID = check_cookie(userIDcookie)
             user_key = db.Key.from_path('Users', long(userID))
             user = db.get(user_key)
             username = user.username
+        else:
+            self.redirect('/signup')
 
         posts = db.GqlQuery("select * from BlogPosts order by created desc")
         self.render("home.html", posts=posts, username=username)
