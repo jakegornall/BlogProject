@@ -338,6 +338,72 @@ class SignUpPage(Handler):
             self.response.headers.add_header('Set-Cookie', 'userID=%s' % make_cookie(userID))
             self.redirect('/')
 
+##############################
+### Edit Post Page Handler ###
+##############################
+class EditPost(Handler):
+    def render_main(self, posts="", username=""):
+        userIDcookie = self.request.cookies.get("userID")
+        userID = check_cookie(userIDcookie)
+        username = None
+
+        # if browser does not contain a userID cookie
+        # redirect to the signup page
+        if userID:
+            user_key = db.Key.from_path('Users', long(userID))
+            user = db.get(user_key)
+            username = user.username
+            postID = self.request.get("postID")
+            post = BlogPosts.get_by_id(int(postID))
+            self.render("editpost.html", post=post, username=username, hostURL=hostURL)
+        else:
+            self.redirect('/signin')
+
+        
+    def get(self):
+        self.render_main()
+
+    def post(self):
+        userIDcookie = self.request.cookies.get("userID")
+        userID = check_cookie(userIDcookie)
+        username = None
+        postID = self.request.get("postID")
+        post_userID = BlogPosts.get_by_id(int(postID)).userID
+
+        # if browser does not contain a userID cookie
+        # redirect to the signup page
+        if userID or userID != post_userID:
+            userID = check_cookie(userIDcookie)
+            user_key = db.Key.from_path('Users', long(userID))
+            user = db.get(user_key)
+            username = user.username
+        else:
+            self.redirect('/signup')
+
+        title = self.request.get("subject")
+        post = self.request.get("content")
+        
+
+        if not title and not post:
+            error = "must enter a title and post!"
+            self.render_main(error=error)
+        elif title and not post:
+            error = "must enter a post!"
+            self.render_main(error=error)
+        elif not title and post:
+            error = "must enter a title!"
+            self.render_main(error=error)
+        else:
+            blogEntry = BlogPosts.get_by_id(int(postID))
+            blogEntry.title = title
+            blogEntry.post = post
+            blogEntry.put()
+            time.sleep(1) # allows time for new db entry to post
+            self.redirect('/')
+
+
+
+
 ######################################################
 ### DB control Page Handler (for development only) ###
 ######################################################
@@ -390,5 +456,6 @@ app = webapp2.WSGIApplication([
     ('/db', DBpage),
     ('/logout', Logout),
     ('/signin', SignInPage),
-    ('/feed', FeedPage)
+    ('/feed', FeedPage),
+    ('/edit', EditPost)
 ], debug=True)
