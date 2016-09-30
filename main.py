@@ -23,18 +23,22 @@ from google.appengine.ext import db
 import hashlib
 import random
 
+
 ### sets up jinja2 environment ###
 template_dir = os.path.join(os.path.dirname(__file__), 'templates')
-jinja_env = jinja2.Environment(loader = jinja2.FileSystemLoader(template_dir), autoescape = True)
+jinja_env = jinja2.Environment(loader = jinja2.FileSystemLoader(template_dir), autoescape = False)
 
 ### Global Variables/Procedures ###
 ########################## 
-SECRET = "87412356489266"# Key for hashing
+SECRET = "87412356489266"# Key for hashing cookies
 ########################## 
 
 ################################### Host URL
 hostURL = "http://localhost:8080" # update before deploying site
 ###################################
+
+### email validation regular expression
+email_re = re.compile(r"(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)")
 
 def make_salt():
     return random.randint(10000,99999)
@@ -49,11 +53,17 @@ def make_cookie(cookie):
     return str(cookie) + "|" + make_cookie_hash(cookie)
 
 def check_cookie(cookie):
-    (cookieVal,hashStr) = cookie.split('|')
+    if cookie:
+        (cookieVal,hashStr) = cookie.split('|')
+    else:
+        return None
     if make_cookie_hash(cookieVal) == hashStr:
         return cookieVal
     else:
         return None
+
+def valid_email(email_address):
+    return email_re.match(email_address)
 
 
 
@@ -73,8 +83,9 @@ class BlogPosts(db.Model):
 ### Users Entity ###
 ####################
 class Users(db.Model):
-    username = db.TextProperty(required=True)
-    password = db.TextProperty(required=True) # stored as hash
+    username = db.StringProperty(required=True)
+    password = db.StringProperty(required=True) # stored as hash
+    email_address = db.EmailProperty(required=True)
     salt = db.IntegerProperty(required=True) # for password validation
 ###########################################################
 
@@ -98,21 +109,21 @@ class Handler(webapp2.RequestHandler):
 class MainPage(Handler):
     def render_main(self, posts="", username=""):
         userIDcookie = self.request.cookies.get("userID")
-        userID = ""
+        userID = check_cookie(userIDcookie)
         username = None
 
         # if browser does not contain a userID cookie
         # redirect to the signup page
-        if userIDcookie != None:
-            userID = check_cookie(userIDcookie)
+        if userID:
             user_key = db.Key.from_path('Users', long(userID))
             user = db.get(user_key)
             username = user.username
+            posts = db.GqlQuery("SELECT * FROM BlogPosts WHERE userID=%s ORDER BY created DESC" % int(userID))
+            self.render("home.html", posts=posts, username=username, hostURL=hostURL)
         else:
             self.redirect('/signup')
 
-        posts = db.GqlQuery("SELECT * FROM BlogPosts WHERE userID=%s ORDER BY created DESC" % int(userID))
-        self.render("home.html", posts=posts, username=username, hostURL=hostURL)
+        
 
     def get(self):
         self.render_main()
@@ -157,6 +168,7 @@ class NewEntry(Handler):
 
         title = self.request.get("subject")
         post = self.request.get("content")
+        title = title.replace('/n','<br>')
 
         if not title and not post:
             error = "must enter a title and post!"
@@ -217,8 +229,23 @@ class NewEntry(Handler):
 ### Sign Up Page Handler ###
 ############################
 class SignUpPage(Handler):
-    def render_main(self, username="", error="", users=""):
-        self.render("signup.html", username=username, error=error, users=users, hostURL=hostURL)
+    def render_main(self,
+                    username="",
+                    usernameError="",
+                    passwordError="",
+                    verifyError="",
+                    emailError="",
+                    users="",
+                    usernameVal=""):
+        self.render("signup.html",
+                    username=username,
+                    usernameError=usernameError,
+                    passwordError=passwordError,
+                    verifyError=verifyError,
+                    emailError=emailError,
+                    users=users,
+                    hostURL=hostURL,
+                    usernameVal=usernameVal)
 
     def get(self):
         self.render_main()
@@ -227,8 +254,14 @@ class SignUpPage(Handler):
         salt = make_salt()
         username = self.request.get("username")
         password = self.request.get("password")
+        verify = self.request.get("verify")
+        email = self.request.get("email")
         users = db.GqlQuery("SELECT * FROM Users")
         all_usernames = []
+        usernameError = ""
+        passwordError = ""
+        verifyError = ""
+        emailError = ""
 
         # as website scales this would need to change
         # to use either a db query or index.
@@ -237,29 +270,31 @@ class SignUpPage(Handler):
         passwordHashed = make_pass_hash(password, salt)
         
         # handles user input on signup form:
-        if not username and not password:
-            error = "username and password required"
-            self.render_main(error=error)
-        elif username and not password:
-            error = "password required"
-            self.render_main(error=error)
-        elif not username and password:
-            error = "username required"
-            self.render_main(error=error)
-        elif username in all_usernames:
-            error = "username already exists"
-            self.render_main(error=error)
+        if not username:
+            usernameError = "username required!"
+        if not password:
+            passwordError = "password required!"
+        if not verify:
+            verifyError = "please verify password!"
+        if not email:
+            emailError = "email required!"
+        if valid_email(email) == None:
+            emailError = "invalid email address!"
+        if password != verify:
+            verifyError = "passwords do not match!"
+        if username in all_usernames:
+            usernameError = "username already exists"
+        if usernameError or passwordError or verifyError or emailError:
+            self.render_main(usernameError=usernameError,
+                             passwordError=passwordError,
+                             verifyError=verifyError,
+                             emailError=emailError,
+                             usernameVal=username)
         else:
-            user = Users(username=username, password=passwordHashed, salt=salt)
+            user = Users(username=username, password=passwordHashed, email_address=email, salt=salt)
             user.put()
             time.sleep(1)
-            q = Users.all()
-            user = []
-            for x in q:
-                if x.username == username:
-                    user.append(x.key().id())
-                    break
-            userID = user[0]
+            userID = user.key().id()
             self.response.headers.add_header('Set-Cookie', 'userID=%s' % make_cookie(userID))
             self.redirect('/')
 

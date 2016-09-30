@@ -1,0 +1,12 @@
+<div class="row text-left">
+    <div class="col-md-2">
+    </div>
+    <div class="post-div col-md-8 btm-border">
+        <h3>{{x.title}}</h3>
+        <h6 class="created">{{x.created.strftime("%b %d, %Y")}}</h6>
+        <h6>Author: {{x.username}}</h6>
+        <per>{{x.post | safe}}</per>
+    </div>
+    <div class="col-md-2">
+    </div>
+</div>

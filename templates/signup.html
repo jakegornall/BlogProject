@@ -12,14 +12,27 @@
             <label>
                 <div>Username:</div>
                 <input type="text" name="username" value="{{usernameVal}}">
+                <p class="error-message">{{usernameError}}</p>
             </label>
             <br>
             <label>
                 <div>Password:</div>
                 <input type="password" name="password">
+                <p class="error-message">{{passwordError}}</p>
             </label>
             <br>
-            <p class="error-message">{{error}}</p>
+            <label>
+                <div>Verify Password:</div>
+                <input type="password" name="verify">
+                <p class="error-message">{{verifyError}}</p>
+            </label>
+            <br>
+            <label>
+                <div>Email Address:</div>
+                <input type="text" name="email">
+                <p class="error-message">{{emailError}}</p>
+            </label>
+            <br>
             <button>Sign Up</button>
         </form>
     </div>
