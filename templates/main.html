@@ -24,7 +24,7 @@
         <div class="row">
             <div class="col-md-6">
                 {% if not username %}
-                <h6>Sign In | <a href="{{hostURL}}/signup">Sign Up</a></h6>
+                <h6><a href="{{hostURL}}/signin">Sign In</a> | <a href="{{hostURL}}/signup">Sign Up</a></h6>
                 {% else %}
                 <h6>Welcome, {{username}}!</h3>
                 {% endif %}

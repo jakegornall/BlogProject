@@ -87,6 +87,21 @@ class Users(db.Model):
     password = db.StringProperty(required=True) # stored as hash
     email_address = db.EmailProperty(required=True)
     salt = db.IntegerProperty(required=True) # for password validation
+
+    @classmethod
+    def by_id(cls, uid):
+        return Users.get_by_id(uid, parent = users_key())
+
+    @classmethod
+    def by_name(cls, name):
+        u = Users.all().filter('username =', name).get()
+        return u
+
+    @classmethod
+    def login(cls, name, pw):
+        u = cls.by_name(name)
+        if u and valid_pw(name, pw, u.pw_hash):
+            return u
 ###########################################################
 
 ### helper procedures for page handlers ###
@@ -121,7 +136,7 @@ class MainPage(Handler):
             posts = db.GqlQuery("SELECT * FROM BlogPosts WHERE userID=%s ORDER BY created DESC" % int(userID))
             self.render("home.html", posts=posts, username=username, hostURL=hostURL)
         else:
-            self.redirect('/signup')
+            self.redirect('/signin')
 
         
 
@@ -188,39 +203,41 @@ class NewEntry(Handler):
 ############################
 ### Sign In Page Handler ###
 ############################
-# class SignInPage(Handler):
-#     def render_main(self, username="", error="", users=""):
-#         self.render("signin.html", username=username, error=error, users=users, hostURL=hostURL)
+class SignInPage(Handler):
+    def render_main(self, username="", error="", users=""):
+        self.render("signin.html", username=username, error=error, users=users, hostURL=hostURL)
 
-#     def get(self):
-#         self.render_main()
+    def get(self):
+        self.render_main()
 
-#     def post(self):
-#         username = self.request.get("username")
-#         password = self.request.get("password")
-#         user = db.GqlQuery("SELECT * FROM Users WHERE username=:1", username).get()
-#         passworHash = user.password
-#         userSalt = user.salt
+    def post(self):
+        username = self.request.get("username")
+        password = self.request.get("password")
+        user = Users.by_name(username)
+        if user:
+            passwordHash = user.password
+            userSalt = user.salt
+            userID = user.key().id()
         
-#         # handles user input on signin form:
-#         if not username and not password:
-#             error = "username and password required"
-#             self.render_main(error=error)
-#         elif username and not password:
-#             error = "password required"
-#             self.render_main(error=error)
-#         elif not username and password:
-#             error = "username required"
-#             self.render_main(error=error)
-#         elif not userInfo:
-#             error = "username does not exists"
-#             self.render_main(error=error)
-#         elif passwordHash != make_pass_hash(password, userSalt):
-#             error = "incorrect password"
-#             self.render_main(error=error)
-#         else:
-#             self.response.headers.add_header('Set-Cookie', 'userID=%s' % make_cookie(userID))
-#             self.redirect('/')
+        # handles user input on signin form:
+        if not username and not password:
+            error = "username and password required"
+            self.render_main(error=error)
+        elif username and not password:
+            error = "password required"
+            self.render_main(error=error)
+        elif not username and password:
+            error = "username required"
+            self.render_main(error=error)
+        elif not user:
+            error = "username does not exists"
+            self.render_main(error=error)
+        elif passwordHash != make_pass_hash(password, userSalt):
+            error = "incorrect password"
+            self.render_main(error=error)
+        else:
+            self.response.headers.add_header('Set-Cookie', 'userID=%s' % make_cookie(userID))
+            self.redirect('/')
 
 
 
@@ -348,6 +365,6 @@ app = webapp2.WSGIApplication([
     ('/newEntry', NewEntry),
     ('/signup', SignUpPage),
     ('/db', DBpage),
-    ('/logout', Logout)
-    # ('/signin', SignInPage)
+    ('/logout', Logout),
+    ('/signin', SignInPage)
 ], debug=True)
