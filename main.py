@@ -26,16 +26,16 @@ import random
 
 ### sets up jinja2 environment ###
 template_dir = os.path.join(os.path.dirname(__file__), 'templates')
-jinja_env = jinja2.Environment(loader = jinja2.FileSystemLoader(template_dir), autoescape = False)
+jinja_env = jinja2.Environment(loader = jinja2.FileSystemLoader(template_dir), autoescape = True)
 
 ### Global Variables/Procedures ###
 ########################## 
 SECRET = "87412356489266"# Key for hashing cookies
 ########################## 
 
-####################################################### Host URL
+################################### Host URL
 hostURL = "http://localhost:8080" # update before deploying site
-#######################################################
+###################################
 
 ### email validation regular expression
 email_re = re.compile(r"(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)")
