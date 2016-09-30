@@ -15,7 +15,7 @@
         .btm-border {border-bottom: 2px solid grey;}
         .error-message {color:red;}
         .created {margin-bottom: -8px; padding-bottom: 0px;}
-        .post-content {white-space: pre-line;}
+        .post-content {white-space: pre-line; margin-top: 6px;}
         .nav-bar a {padding: 5px; font-weight: bold; font-size: 15px; margin-right: 20px; transition: font-size 1s;}
         .nav-bar a:hover {font-size: 20px; transition: font-size 1s;}
         .nav-bar {margin: 0 0 -20px 0; padding: 0 0 0 0;}
@@ -43,7 +43,8 @@
         <div class="row nav-bar">
             <div class="col-md-12 text-center"> 
                 <a href="{{hostURL}}/">HOME</a>
-                <a href="{{hostURL}}/feed">FEED</a>             
+                <a href="{{hostURL}}/feed">FEED</a>
+                <a href="{{hostURL}}/newEntry">CREATE POST</a>            
             </div>
         </div>
         {% endif %}
