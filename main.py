@@ -119,6 +119,31 @@ class Handler(webapp2.RequestHandler):
 # PAGE HANDLERS
 ############################################################################
 #########################
+### Feed Page Handler ###
+#########################
+class FeedPage(Handler):
+    def render_main(self, posts="", username=""):
+        userIDcookie = self.request.cookies.get("userID")
+        userID = check_cookie(userIDcookie)
+        username = None
+
+        # if browser does not contain a userID cookie
+        # redirect to the signup page
+        if userID:
+            user_key = db.Key.from_path('Users', long(userID))
+            user = db.get(user_key)
+            username = user.username
+            posts = db.GqlQuery("SELECT * FROM BlogPosts ORDER BY created DESC")
+            self.render("feed.html", posts=posts, username=username, hostURL=hostURL)
+        else:
+            self.redirect('/signin')
+
+        
+
+    def get(self):
+        self.render_main()
+
+#########################
 ### Home Page Handler ###
 #########################
 class MainPage(Handler):
@@ -238,8 +263,6 @@ class SignInPage(Handler):
         else:
             self.response.headers.add_header('Set-Cookie', 'userID=%s' % make_cookie(userID))
             self.redirect('/')
-
-
 
 
 ############################
@@ -366,5 +389,6 @@ app = webapp2.WSGIApplication([
     ('/signup', SignUpPage),
     ('/db', DBpage),
     ('/logout', Logout),
-    ('/signin', SignInPage)
+    ('/signin', SignInPage),
+    ('/feed', FeedPage)
 ], debug=True)
