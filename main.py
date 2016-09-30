@@ -33,9 +33,9 @@ jinja_env = jinja2.Environment(loader = jinja2.FileSystemLoader(template_dir), a
 SECRET = "87412356489266"# Key for hashing cookies
 ########################## 
 
-################################### Host URL
+####################################################### Host URL
 hostURL = "http://localhost:8080" # update before deploying site
-###################################
+#######################################################
 
 ### email validation regular expression
 email_re = re.compile(r"(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)")
