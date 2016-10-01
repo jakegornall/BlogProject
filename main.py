@@ -444,8 +444,20 @@ class Logout(Handler):
         self.response.headers.add_header('Set-Cookie', 'userID=')
         self.redirect('/signup')
 
-
-
+###########################
+### Delete Post Handler ###
+###########################
+class DeletePost(Handler):
+    def get(self):
+        postID = self.request.get("postID")
+        post_to_delete = BlogPosts.get_by_id(int(postID))
+        post_userID = post_to_delete.userID
+        currentUserID = check_cookie(self.request.cookies.get("userID"))
+        if not currentUserID or currentUserID != post_userID:
+            self.redirect('/')
+        post_to_delete.delete()
+        time.sleep(1)
+        self.redirect('/')
 ##########################################################################
         
 ### Maps URLs to Handlers ###
@@ -457,5 +469,6 @@ app = webapp2.WSGIApplication([
     ('/logout', Logout),
     ('/signin', SignInPage),
     ('/feed', FeedPage),
-    ('/edit', EditPost)
+    ('/edit', EditPost),
+    ('/delete', DeletePost)
 ], debug=True)
