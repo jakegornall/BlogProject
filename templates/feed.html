@@ -5,14 +5,15 @@
 <div class="row text-left">
     <div class="col-md-2">
     </div>
-    <div class="post-div col-md-8 btm-border">
-        <h3>{{x.title}}</h3>
-        <h6 class="created">{{x.created.strftime("%b %d, %Y")}}</h6>
-        <h6>Author: {{x.username}}</h6>
-        <p class="post-content">{{x.post | safe}}</p>
-    </div>
+	    <div class="post-div col-md-8 btm-border hover-post">
+	        <h3>{{x.title}}</h3>
+	        <h6 class="created">{{x.created.strftime("%b %d, %Y")}}</h6>
+	        <h6>Author: {{x.username}}</h6>
+	        <p class="post-content">{{x.post | safe}}</p>
+	        <a class="btn btn-primary btn-xs" href="{{hostURL}}/permalink?postID={{x.key().id()}}">See Comments</a>
+	    </div>
     <div class="col-md-2">
     </div>
-</div>
+</div> 
 {% endfor %}
 {% endblock %}

@@ -89,10 +89,6 @@ class Users(db.Model):
     salt = db.IntegerProperty(required=True) # for password validation
 
     @classmethod
-    def by_id(cls, uid):
-        return Users.get_by_id(uid, parent = users_key())
-
-    @classmethod
     def by_name(cls, name):
         u = Users.all().filter('username =', name).get()
         return u
@@ -102,6 +98,16 @@ class Users(db.Model):
         u = cls.by_name(name)
         if u and valid_pw(name, pw, u.pw_hash):
             return u
+
+#######################
+### Comments Entity ###
+#######################
+class Comments(db.Model):
+    postID = db.IntegerProperty(required=True)
+    userID = db.IntegerProperty(required=True)
+    username = db.StringProperty(required=True)
+    comment = db.TextProperty(required=True)
+
 ###########################################################
 
 ### helper procedures for page handlers ###
@@ -134,11 +140,10 @@ class FeedPage(Handler):
             user = db.get(user_key)
             username = user.username
             posts = db.GqlQuery("SELECT * FROM BlogPosts ORDER BY created DESC")
-            self.render("feed.html", posts=posts, username=username, hostURL=hostURL)
+            comments = Comments.all()
+            self.render("feed.html", posts=posts, comments=comments, username=username, hostURL=hostURL)
         else:
             self.redirect('/signin')
-
-        
 
     def get(self):
         self.render_main()
@@ -238,7 +243,7 @@ class SignInPage(Handler):
     def post(self):
         username = self.request.get("username")
         password = self.request.get("password")
-        user = Users.by_name(username)
+        user = Users.by_name(str(username))
         if user:
             passwordHash = user.password
             userSalt = user.salt
@@ -401,7 +406,52 @@ class EditPost(Handler):
             time.sleep(1) # allows time for new db entry to post
             self.redirect('/')
 
+################################
+### Single Post Page Handler ###
+################################
+class SinglePostPage(Handler):
+    def get(self):
+        userIDcookie = self.request.cookies.get("userID")
+        userID = check_cookie(userIDcookie)
+        username = None
 
+        # if browser does not contain a userID cookie
+        # redirect to the signup page
+        if userID:
+            user_key = db.Key.from_path('Users', long(userID))
+            user = db.get(user_key)
+            username = user.username
+        else:
+            self.redirect('/signup')
+
+        postID = int(self.request.get("postID"))
+        post = BlogPosts.get_by_id(postID)
+        comments = Comments.all().filter('postID =', postID).run()
+        self.render("post.html", post=post, comments=comments, username=username)
+
+    def post(self):
+        userIDcookie = self.request.cookies.get("userID")
+        userID = check_cookie(userIDcookie)
+        username = None
+
+        # if browser does not contain a userID cookie
+        # redirect to the signup page
+        if userID:
+            userID = int(userID)
+            user_key = db.Key.from_path('Users', long(userID))
+            user = db.get(user_key)
+            username = user.username
+        else:
+            self.redirect('/signup')
+
+        postID = int(self.request.get("postID"))
+        comment = self.request.get("new_comment")
+        comment_submission = Comments(postID=postID, userID=userID, username=username, comment=comment)
+        comment_submission.put()
+        post = BlogPosts.get_by_id(postID)
+        time.sleep(1)
+        comments = Comments.all().filter('postID =', postID).run()
+        self.render("post.html", post=post, comments=comments, username=username)
 
 
 ######################################################
@@ -452,12 +502,15 @@ class DeletePost(Handler):
         postID = self.request.get("postID")
         post_to_delete = BlogPosts.get_by_id(int(postID))
         post_userID = post_to_delete.userID
-        currentUserID = check_cookie(self.request.cookies.get("userID"))
-        if not currentUserID or currentUserID != post_userID:
+        currentUserID = int(check_cookie(self.request.cookies.get("userID")))
+        if not currentUserID:
             self.redirect('/')
-        post_to_delete.delete()
+        if currentUserID == post_userID:
+            post_to_delete.delete()
+
         time.sleep(1)
         self.redirect('/')
+
 ##########################################################################
         
 ### Maps URLs to Handlers ###
@@ -470,5 +523,6 @@ app = webapp2.WSGIApplication([
     ('/signin', SignInPage),
     ('/feed', FeedPage),
     ('/edit', EditPost),
-    ('/delete', DeletePost)
+    ('/delete', DeletePost),
+    ('/permalink', SinglePostPage)
 ], debug=True)
