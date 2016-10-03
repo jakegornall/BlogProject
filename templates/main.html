@@ -22,7 +22,13 @@
         .nav-bar a:hover {font-size: 20px; transition: font-size 1s;}
         .nav-bar {margin: 0 0 -20px 0; padding: 0 0 0 0;}
         .delete-keep-btns {padding:5px;} 
-        .resizedTextbox {width: 100%;}
+        textarea {
+            -webkit-box-sizing: border-box;
+            -moz-box-sizing: border-box;
+            box-sizing: border-box;
+            width: 100%;
+            resize: vertical;
+        }
     </style>
 
 </head>

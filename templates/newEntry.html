@@ -9,18 +9,15 @@
 <div class="row text-center">
     <div class="col-md-12">
         <form method="post">
-            <label>
-                <div>Title</div>
-                <input type="text" name="subject">
-            </label>
+            <div><h4>Title</h4></div>
+            <input type="text" name="subject" style="width: 50%;">
             <br>
-            <label>
-                <div>New Entry</div>
-                <textarea rows="15" cols="35" name="content"></textarea>
-            </label>
+            <br>
+            <div><h4>New Entry</h4></div>
+            <textarea rows="20" name="content"></textarea>
             <br>
             <p class="error-message">{{error}}</p>
-            <button>Submit New Entry</button>
+            <button class="btn btn-primary btn-lg">Submit New Entry</button>
         </form>
     </div>
 </div>
