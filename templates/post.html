@@ -9,23 +9,10 @@
         <p class="post-content">{{post.post | safe}}</p>
         <button class="btn btn-default btn-xs" data-toggle="modal" data-target="#comment-modal">New Comment</button>
 	</div>
-</div>
-<div class="row">
-	<div class="col-md-2"></div>
-	<div class="col-md-10">
-		<h2>Comments</h2>
+	<div class="col-md-12">
+		<h2>Comments:</h2>
 	</div>
 </div>
-{% for x in comments %}
-<div class="row">
-	<div class="col-md-2"></div>
-	<div class="col-md-10 btm-border">
-		<h3>by: {{x.username}}</h3>
-		<p>{{x.comment}}</p>
-	</div>
-</div>
-{% endfor %}
-
 <!-- Comment Modal -->
 <div class="modal fade" id="comment-modal" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-lg">
@@ -43,4 +30,13 @@
     </div>
   </div>
 </div>
+{% for x in comments %}
+<div class="row">
+	<div class="col-md-2"></div>
+	<div class="col-md-10 btm-border">
+		<h3>by: {{x.username}}</h3>
+		<p>{{x.comment}}</p>
+	</div>
+</div>
+{% endfor %}
 {% endblock %}
