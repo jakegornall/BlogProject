@@ -1,5 +1,22 @@
 This blog is for the project, Multi User Blog, on Udacity. 
 Meant for use on Google App Engine. 
 
-Use Google App Engine Launcher to launch site on a localhost port. 
-If you deploy this site, make sure to change the urls in all the links within the html files. The current links are for use on a localhost. 
+To run on local host:
+
+1. Clone this repository to your machine.
+
+2. Open Google App Engine Launcher (if you don't have it, download it at: https://cloud.google.com/appengine/docs/python/download)
+
+3. Go to File > Add Existing Application...
+
+4. Enter the path to the directory that contains the repository.
+
+5. Take note of which port will host the site. (defaults to Port: 8080)
+
+6. Click "Add".
+
+7. Select your directory and click "Run".
+
+8. Before opening in your browser, open main.py and change the global variable hostURL to "http://localhost:(your port from step 5)"
+
+
