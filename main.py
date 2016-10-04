@@ -37,7 +37,7 @@ SECRET = "87412356489266"  # Key for hashing cookies
 hostURL = "http://www.blogproject-144722.appspot.com"  # update before deploying site
 
 # email validation regular expression
-email_re = re.compile(r"(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)")
+email_re = re.compile(r"(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)")  # Thank you, to http://emailregex.com/
 
 
 def make_salt():
