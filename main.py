@@ -34,7 +34,7 @@ jinja_env = jinja2.Environment(
 SECRET = "87412356489266"  # Key for hashing cookies
 
 # Host URL
-hostURL = "http://www.blogproject-144722.appspot.com"  # update before deploying site
+hostURL = "http://localhost:8080"  # update before deploying site
 
 # email validation regular expression
 email_re = re.compile(r"(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)")  # Thank you, to http://emailregex.com/
@@ -63,10 +63,7 @@ def check_cookie(cookie):
         (cookieVal, hashStr) = cookie.split('|')
     else:
         return None
-    if make_cookie_hash(cookieVal) == hashStr:
-        return cookieVal
-    else:
-        return None
+    return cookieVal if make_cookie_hash(cookieVal) == hashStr else None
 
 
 def valid_email(email_address):
@@ -82,7 +79,8 @@ class BlogPosts(db.Model):
     post = db.TextProperty(required=True)
     created = db.DateTimeProperty(auto_now_add=True)
     userID = db.IntegerProperty(required=True)
-    username = db.TextProperty(required=True)
+    username = db.StringProperty(required=True)
+    likes = db.ListProperty(int)
 
 
 class Users(db.Model):
@@ -504,6 +502,22 @@ class DeletePost(Handler):
         time.sleep(1)
         self.redirect('/')
 
+
+class PostLike(Handler):
+    '''Handles blog post like requests'''
+    def get(self):
+        userIDcookie = self.request.cookies.get("userID")
+        userID = self.validUser(userIDcookie)
+        if not userID:
+            self.redirect('/signin')
+        else:
+            userID = int(userID)
+            postID = self.request.get("post-like")
+            post = BlogPosts.get_by_id(int(postID))
+            post.likes.append(userID)
+            post.put()
+            self.redirect('/feed')
+
 # Maps URLs to Handlers
 app = webapp2.WSGIApplication([
     ('/', MainPage),
@@ -515,5 +529,6 @@ app = webapp2.WSGIApplication([
     ('/feed', FeedPage),
     ('/edit', EditPost),
     ('/delete', DeletePost),
-    ('/permalink', SinglePostPage)
+    ('/permalink', SinglePostPage),
+    ('/postLike', PostLike)
 ], debug=True)
