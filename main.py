@@ -383,12 +383,12 @@ class SinglePostPage(Handler):
             username = user.username
             postID = int(self.request.get("postID"))
             post = BlogPosts.get_by_id(postID)
-            comments = Comments.all().filter('postID =', postID).run()
+            comments = Comments.all().filter('postID =', postID).order('created').run()
             self.render("post.html",
                         post=post,
                         comments=comments,
                         username=username,
-                        userID=userId)
+                        userID=userID)
 
     def post(self):
         userIDcookie = self.request.cookies.get("userID")
@@ -408,11 +408,12 @@ class SinglePostPage(Handler):
         comment_submission.put()
         post = BlogPosts.get_by_id(postID)
         time.sleep(1)
-        comments = Comments.all().filter('postID =', postID).run()
+        comments = Comments.all().filter('postID =', postID).order('created').run()
         self.render("post.html",
                     post=post,
                     comments=comments,
-                    username=username)
+                    username=username,
+                    userID=userID)
 
 
 class DBpage(Handler):
@@ -475,6 +476,48 @@ class DeletePost(Handler):
         self.redirect(hostURL)
 
 
+class EditComment(Handler):
+    '''Handles Comment Edit Requests'''
+    def get(self):
+        userIDcookie = self.request.cookies.get("userID")
+        userID = validUser(userIDcookie)
+        commenter_userID = int(self.request.get("commenter_userID"))
+        if not userID:
+            self.redirect('%s/signin' % hostURL)
+        elif userID != commenter_userID:
+            self.redirect(hostURL)
+        else:
+            commentID = int(self.request.get("commentID"))
+            edited_comment = self.request.get("edited_comment")
+            comment = Comments.get_by_id(commentID)
+            postID = comment.postID
+            comment.comment = edited_comment
+            comment.put()
+            time.sleep(1)
+            self.redirect('%s/permalink?postID=%s' % (hostURL, postID))
+
+
+
+
+class DeleteComment(Handler):
+    '''Handles Delete Comment Requests'''
+    def get(self):
+        userIDcookie = self.request.cookies.get("userID")
+        userID = validUser(userIDcookie)
+        if not userID:
+            self.redirect('%s/signin' % hostURL)
+        else:
+            commentID = int(self.request.get("commentID"))
+            commentObject = Comments.get_by_id(commentID)
+            commenter_userID = commentObject.userID
+            postID = commentObject.postID
+            if userID != commenter_userID:
+                self.redirect(hostURL)
+            else:
+                commentObject.delete()
+                time.sleep(1)
+                self.redirect('%s/permalink?postID=%s' % (hostURL, postID))
+
 class PostLike(Handler):
     '''Handles blog post like requests'''
     def get(self):
@@ -507,5 +550,7 @@ app = webapp2.WSGIApplication([
     ('/edit', EditPost),
     ('/delete', DeletePost),
     ('/permalink', SinglePostPage),
-    ('/postLike', PostLike)
+    ('/postLike', PostLike),
+    ('/deletecomment', DeleteComment),
+    ('/editcomment', EditComment)
 ], debug=True)

@@ -27,6 +27,17 @@ indexes:
   - name: created
     direction: desc
 
+- kind: Comments
+  properties:
+  - name: postID
+  - name: created
+    direction: desc
+
+- kind: Comments
+  properties:
+  - name: postID
+  - name: created
+
 - kind: Users
   properties:
   - name: username
