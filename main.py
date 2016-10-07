@@ -22,7 +22,9 @@ import webapp2
 from google.appengine.ext import db
 import hashlib
 import random
-
+from posts import *
+from users import *
+from comments import *
 
 # sets up jinja2 environment
 template_dir = os.path.join(os.path.dirname(__file__), 'templates')
@@ -72,37 +74,14 @@ def valid_email(email_address):
     return email_re.match(email_address)
 
 
-# DATABASE ENTITIES
-class BlogPosts(db.Model):
-    '''stores all user's blog posts'''
-    title = db.TextProperty(required=True)
-    post = db.TextProperty(required=True)
-    created = db.DateTimeProperty(auto_now_add=True)
-    userID = db.IntegerProperty(required=True)
-    username = db.StringProperty(required=True)
-    likes = db.ListProperty(int)
-
-
-class Users(db.Model):
-    '''stores user login data'''
-    username = db.StringProperty(required=True)
-    password = db.StringProperty(required=True)  # stored as hash
-    email_address = db.EmailProperty(required=True)
-    salt = db.IntegerProperty(required=True)  # for password validation
-
-    @classmethod
-    def by_name(cls, name):
-        '''takes in username. Returns user's data'''
-        u = Users.all().filter('username =', name).get()
-        return u
-
-
-class Comments(db.Model):
-    '''Stores all comments on posts'''
-    postID = db.IntegerProperty(required=True)
-    userID = db.IntegerProperty(required=True)
-    username = db.StringProperty(required=True)
-    comment = db.TextProperty(required=True)
+def validUser(userIDcookie):
+    userID = check_cookie(userIDcookie)
+    '''if userIDcookie does not exist or has been tampered with
+    return None. If userIDcookie is valid, return userID'''
+    if userID:
+        return int(userID)
+    else:
+        return None
 
 
 class Handler(webapp2.RequestHandler):
@@ -117,26 +96,17 @@ class Handler(webapp2.RequestHandler):
     def render(self, template, **kw):
         self.write(self.render_str(template, **kw))
 
-    def validUser(self, userIDcookie):
-        userID = check_cookie(userIDcookie)
-        '''if userIDcookie does not exist or has been tampered with
-        return None. If userIDcookie is valid, return userID'''
-        if userID:
-            return int(userID)
-        else:
-            return None
-
 
 # PAGE HANDLERS
 class FeedPage(Handler):
     '''Feed Page Handler'''
     def get(self):
         userIDcookie = self.request.cookies.get("userID")
-        userID = self.validUser(userIDcookie)
+        userID = validUser(userIDcookie)
         if not userID:
             self.redirect('/signin')
         else:
-            user = Users.get_by_id(userID)
+            user = Users.get_by_id(int(userID))
             username = user.username
             posts = db.GqlQuery('''SELECT *
                                 FROM BlogPosts
@@ -146,6 +116,7 @@ class FeedPage(Handler):
                         posts=posts,
                         comments=comments,
                         username=username,
+                        userID=int(userID),
                         hostURL=hostURL)
 
 
@@ -153,7 +124,7 @@ class MainPage(Handler):
     '''Home Page Handler'''
     def get(self):
         userIDcookie = self.request.cookies.get("userID")
-        userID = self.validUser(userIDcookie)
+        userID = validUser(userIDcookie)
         if not userID:
             self.redirect('/signin')
         else:
@@ -173,7 +144,7 @@ class NewEntry(Handler):
     '''New Entry Page Handler'''
     def render_main(self, error="", username=""):
         userIDcookie = self.request.cookies.get("userID")
-        userID = self.validUser(userIDcookie)
+        userID = validUser(userIDcookie)
         if not userID:
             self.redirect('/signin')
 
@@ -189,7 +160,7 @@ class NewEntry(Handler):
 
     def post(self):
         userIDcookie = self.request.cookies.get("userID")
-        userID = self.validUser(userIDcookie)
+        userID = validUser(userIDcookie)
         if not userID:
             self.redirect('/signin')
 
@@ -271,7 +242,7 @@ class SignUpPage(Handler):
                     users="",
                     usernameVal=""):
         userIDcookie = self.request.cookies.get('userID')
-        if self.validUser(userIDcookie):
+        if validUser(userIDcookie):
             self.redirect('/')
         self.render("signup.html",
                     username=username,
@@ -338,7 +309,7 @@ class EditPost(Handler):
     '''Edit Post Page Handler'''
     def render_main(self, posts="", username=""):
         userIDcookie = self.request.cookies.get("userID")
-        userID = self.validUser(userIDcookie)
+        userID = validUser(userIDcookie)
         if not userID:
             self.redirect('/signin')
 
@@ -360,7 +331,7 @@ class EditPost(Handler):
 
     def post(self):
         userIDcookie = self.request.cookies.get("userID")
-        userID = self.validUser(userIDcookie)
+        userID = validUser(userIDcookie)
 
         if not userID:
             self.redirect('/signin')
@@ -404,7 +375,7 @@ class SinglePostPage(Handler):
     '''Single Post Page Handler'''
     def get(self):
         userIDcookie = self.request.cookies.get("userID")
-        userID = self.validUser(userIDcookie)
+        userID = validUser(userIDcookie)
         if not userID:
             self.redirect('/signin')
         else:
@@ -420,7 +391,7 @@ class SinglePostPage(Handler):
 
     def post(self):
         userIDcookie = self.request.cookies.get("userID")
-        userID = self.validUser(userIDcookie)
+        userID = validUser(userIDcookie)
         if not userID:
             self.redirect('/signin')
         else:
@@ -507,15 +478,21 @@ class PostLike(Handler):
     '''Handles blog post like requests'''
     def get(self):
         userIDcookie = self.request.cookies.get("userID")
-        userID = self.validUser(userIDcookie)
+        userID = validUser(userIDcookie)
+        postID = self.request.get("post-like")
+        post = BlogPosts.get_by_id(int(postID))
         if not userID:
             self.redirect('/signin')
+        elif int(userID) in post.likes:
+            post.likes.remove(int(userID))
+            post.put()
+            time.sleep(.2)
+            self.redirect('/feed')
         else:
             userID = int(userID)
-            postID = self.request.get("post-like")
-            post = BlogPosts.get_by_id(int(postID))
             post.likes.append(userID)
             post.put()
+            time.sleep(.2)
             self.redirect('/feed')
 
 # Maps URLs to Handlers
