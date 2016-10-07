@@ -416,43 +416,6 @@ class SinglePostPage(Handler):
                     userID=userID)
 
 
-class DBpage(Handler):
-    '''DB control Page Handler (for development only)'''
-    def get(self):
-        users = Users.all()
-        blogposts = BlogPosts.all()
-        self.render("db.html",
-                    users=users,
-                    blogposts=blogposts,
-                    hostURL=hostURL)
-
-    def post(self):
-        usersCheck = self.request.get("users")
-        postsCheck = self.request.get("posts")
-        users = Users.all()
-        blogposts = BlogPosts.all()
-        userKeys = []
-        postKeys = []
-        for user in users:
-            userKeys.append(user.key())
-        for post in blogposts:
-            postKeys.append(post.key())
-
-        if usersCheck:
-            db.delete(userKeys)
-        if postsCheck:
-            db.delete(postKeys)
-
-        time.sleep(2)
-
-        users = Users.all()
-        blogposts = BlogPosts.all()
-        self.render("db.html",
-                    users=users,
-                    blogposts=blogposts,
-                    hostURL=hostURL)
-
-
 class Logout(Handler):
     '''Logout Page Handler'''
     def get(self):
@@ -543,7 +506,6 @@ app = webapp2.WSGIApplication([
     ('/', MainPage),
     ('/newEntry', NewEntry),
     ('/signup', SignUpPage),
-    ('/db', DBpage),
     ('/logout', Logout),
     ('/signin', SignInPage),
     ('/feed', FeedPage),
