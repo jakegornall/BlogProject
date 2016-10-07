@@ -31,12 +31,12 @@ indexes:
   properties:
   - name: postID
   - name: created
-    direction: desc
 
 - kind: Comments
   properties:
   - name: postID
   - name: created
+    direction: desc
 
 - kind: Users
   properties:

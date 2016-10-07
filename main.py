@@ -104,7 +104,7 @@ class FeedPage(Handler):
         userIDcookie = self.request.cookies.get("userID")
         userID = validUser(userIDcookie)
         if not userID:
-            self.redirect('%s/signin' % hostURL)
+            return self.redirect('%s/signin' % hostURL)
         else:
             user = Users.get_by_id(userID)
             username = user.username
@@ -126,7 +126,7 @@ class MainPage(Handler):
         userIDcookie = self.request.cookies.get("userID")
         userID = validUser(userIDcookie)
         if not userID:
-            self.redirect('%s/signin' % hostURL)
+            return self.redirect('%s/signin' % hostURL)
         else:
             user = Users.get_by_id(userID)
             username = user.username
@@ -146,7 +146,7 @@ class NewEntry(Handler):
         userIDcookie = self.request.cookies.get("userID")
         userID = validUser(userIDcookie)
         if not userID:
-            self.redirect('%s/signin' % hostURL)
+            return self.redirect('%s/signin' % hostURL)
 
         user = Users.get_by_id(userID)
         username = user.username
@@ -162,7 +162,7 @@ class NewEntry(Handler):
         userIDcookie = self.request.cookies.get("userID")
         userID = validUser(userIDcookie)
         if not userID:
-            self.redirect('%s/signin' % hostURL)
+            return self.redirect('%s/signin' % hostURL)
 
         user = Users.get_by_id(userID)
         username = user.username
@@ -185,7 +185,7 @@ class NewEntry(Handler):
                                  username=username)
             new_post.put()
             time.sleep(1)  # allows time for new db entry to post
-            self.redirect(hostURL)
+            return self.redirect(hostURL)
 
 
 class SignInPage(Handler):
@@ -228,7 +228,7 @@ class SignInPage(Handler):
         else:
             self.response.headers.add_header('Set-Cookie',
                                              'userID=%s' % make_cookie(userID))
-            self.redirect(hostURL)
+            return self.redirect(hostURL)
 
 
 class SignUpPage(Handler):
@@ -243,7 +243,7 @@ class SignUpPage(Handler):
                     usernameVal=""):
         userIDcookie = self.request.cookies.get('userID')
         if validUser(userIDcookie):
-            self.redirect(hostURL)
+            return self.redirect(hostURL)
         self.render("signup.html",
                     username=username,
                     usernameError=usernameError,
@@ -302,7 +302,7 @@ class SignUpPage(Handler):
             userID = user.key().id()
             self.response.headers.add_header('Set-Cookie',
                                              'userID=%s' % make_cookie(userID))
-            self.redirect(hostURL)
+            return self.redirect(hostURL)
 
 
 class EditPost(Handler):
@@ -311,7 +311,7 @@ class EditPost(Handler):
         userIDcookie = self.request.cookies.get("userID")
         userID = validUser(userIDcookie)
         if not userID:
-            self.redirect('%s/signin' % hostURL)
+            return self.redirect('%s/signin' % hostURL)
 
         user = Users.get_by_id(userID)
         username = user.username
@@ -320,7 +320,7 @@ class EditPost(Handler):
         post_userID = BlogPosts.get_by_id(int(postID)).userID
 
         if userID != post_userID:
-            self.redirect(hostURL)
+            return self.redirect(hostURL)
         self.render("editpost.html",
                     post=post,
                     username=username,
@@ -334,7 +334,7 @@ class EditPost(Handler):
         userID = validUser(userIDcookie)
 
         if not userID:
-            self.redirect('%s/signin' % hostURL)
+            return self.redirect('%s/signin' % hostURL)
 
         user = Users.get_by_id(userID)
         username = user.username
@@ -343,7 +343,7 @@ class EditPost(Handler):
         post_userID = BlogPosts.get_by_id(int(postID)).userID
 
         if userID != post_userID:
-            self.redirect(hostURL)
+            return self.redirect(hostURL)
 
         userID = check_cookie(userIDcookie)
         user_key = db.Key.from_path('Users', long(userID))
@@ -368,7 +368,7 @@ class EditPost(Handler):
             blogEntry.post = post
             blogEntry.put()
             time.sleep(1)  # allows time for new db entry to post
-            self.redirect(hostURL)
+            return self.redirect(hostURL)
 
 
 class SinglePostPage(Handler):
@@ -377,7 +377,7 @@ class SinglePostPage(Handler):
         userIDcookie = self.request.cookies.get("userID")
         userID = validUser(userIDcookie)
         if not userID:
-            self.redirect('%s/signin' % hostURL)
+            return self.redirect('%s/signin' % hostURL)
         else:
             user = Users.get_by_id(userID)
             username = user.username
@@ -394,7 +394,7 @@ class SinglePostPage(Handler):
         userIDcookie = self.request.cookies.get("userID")
         userID = validUser(userIDcookie)
         if not userID:
-            self.redirect('%s/signin' % hostURL)
+            return self.redirect('%s/signin' % hostURL)
         else:
             user = Users.get_by_id(userID)
             username = user.username
@@ -420,7 +420,7 @@ class Logout(Handler):
     '''Logout Page Handler'''
     def get(self):
         self.response.headers.add_header('Set-Cookie', 'userID=')
-        self.redirect('%s/signup' % hostURL)
+        return self.redirect('%s/signup' % hostURL)
 
 
 class DeletePost(Handler):
@@ -431,12 +431,12 @@ class DeletePost(Handler):
         post_userID = post_to_delete.userID
         currentUserID = int(check_cookie(self.request.cookies.get("userID")))
         if not currentUserID:
-            self.redirect(hostURL)
+            return self.redirect(hostURL)
         if currentUserID == post_userID:
             post_to_delete.delete()
 
         time.sleep(1)
-        self.redirect(hostURL)
+        return self.redirect(hostURL)
 
 
 class EditComment(Handler):
@@ -446,9 +446,9 @@ class EditComment(Handler):
         userID = validUser(userIDcookie)
         commenter_userID = int(self.request.get("commenter_userID"))
         if not userID:
-            self.redirect('%s/signin' % hostURL)
+            return self.redirect('%s/signin' % hostURL)
         elif userID != commenter_userID:
-            self.redirect(hostURL)
+            return self.redirect(hostURL)
         else:
             commentID = int(self.request.get("commentID"))
             edited_comment = self.request.get("edited_comment")
@@ -457,7 +457,7 @@ class EditComment(Handler):
             comment.comment = edited_comment
             comment.put()
             time.sleep(1)
-            self.redirect('%s/permalink?postID=%s' % (hostURL, postID))
+            return self.redirect('%s/permalink?postID=%s' % (hostURL, postID))
 
 
 
@@ -468,18 +468,18 @@ class DeleteComment(Handler):
         userIDcookie = self.request.cookies.get("userID")
         userID = validUser(userIDcookie)
         if not userID:
-            self.redirect('%s/signin' % hostURL)
+            return self.redirect('%s/signin' % hostURL)
         else:
             commentID = int(self.request.get("commentID"))
             commentObject = Comments.get_by_id(commentID)
             commenter_userID = commentObject.userID
             postID = commentObject.postID
             if userID != commenter_userID:
-                self.redirect(hostURL)
+                return self.redirect(hostURL)
             else:
                 commentObject.delete()
                 time.sleep(1)
-                self.redirect('%s/permalink?postID=%s' % (hostURL, postID))
+                return self.redirect('%s/permalink?postID=%s' % (hostURL, postID))
 
 class PostLike(Handler):
     '''Handles blog post like requests'''
@@ -489,17 +489,17 @@ class PostLike(Handler):
         postID = self.request.get("post-like")
         post = BlogPosts.get_by_id(int(postID))
         if not userID:
-            self.redirect('%s/signin' % hostURL)
+            return self.redirect('%s/signin' % hostURL)
         elif userID in post.likes:
             post.likes.remove(userID)
             post.put()
             time.sleep(.2)
-            self.redirect('%s/feed' % hostURL)
+            return self.redirect('%s/feed' % hostURL)
         else:
             post.likes.append(userID)
             post.put()
             time.sleep(.2)
-            self.redirect('%s/feed' % hostURL)
+            return self.redirect('%s/feed' % hostURL)
 
 # Maps URLs to Handlers
 app = webapp2.WSGIApplication([
