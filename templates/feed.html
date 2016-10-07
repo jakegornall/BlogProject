@@ -11,6 +11,7 @@
 	        <h6>Author: {{x.username}}</h6>
 	        <p class="post-content">{{x.post | safe}}</p>
 		    <a class="btn btn-default btn-xs" style="display: inline;" href="{{hostURL}}/permalink?postID={{x.key().id()}}">See Comments</a>
+		    {% if x.userID != userID %}
 		    <form style="display: inline;" action="/postLike">
 			    <input type="hidden" name="post-like" value="{{x.key().id()}}">
 			    <button class="btn btn-primary btn-xs">
@@ -21,6 +22,7 @@
 			    {% endif %}
 			    </button>
 		    </form>
+		    {% endif %}
 	        <p>{{x.likes|length}} Likes</p>
 	    </div>
     <div class="col-md-2">
