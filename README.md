@@ -1,5 +1,7 @@
 This blog is for the project, Multi User Blog, on Udacity. 
-Meant for use on Google App Engine. 
+Meant for use on Google App Engine. Utilizes Python, Jinja2, HTML5, and CSS. 
+This site is a multi-user blog where users can sign up, sign in, create/edit/delete posts, comment on posts, edit/delete comments,
+like/unlike posts. 
 
 To run on local host:
 
@@ -15,6 +17,6 @@ To run on local host:
 To see deployed site visit: 
 http://www.blogproject-144722.appspot.com
 
-NOTE: the url /db is for development only. This page is to contol the database while experimenting with new data structure.
+NOTE: To view current database entities while running on localhost use the provided admin port followed by /datastore. (ex. http://localhost:8000/datastore)
 
 
