@@ -10,7 +10,7 @@
 	        <h6 class="created">{{x.created.strftime("%b %d, %Y")}}</h6>
 	        <h6>Author: {{x.username}}</h6>
 	        <p class="post-content">{{x.post | safe}}</p>
-		    <a class="btn btn-default btn-xs" style="display: inline;" href="{{hostURL}}/permalink?postID={{x.key().id()}}">See Comments</a>
+		    <a class="btn btn-default btn-xs" style="display: inline;" href="/permalink?postID={{x.key().id()}}">See Comments</a>
 		    {% if x.userID != userID %}
 		    <form style="display: inline;" action="/postLike">
 			    <input type="hidden" name="post-like" value="{{x.key().id()}}">

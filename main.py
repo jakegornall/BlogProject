@@ -35,9 +35,6 @@ jinja_env = jinja2.Environment(
 #  Global Variables/Procedures
 SECRET = "87412356489266"  # Key for hashing cookies
 
-# Host URL
-hostURL = "http://localhost:8080"  # update before deploying site
-
 # email validation regular expression
 email_re = re.compile(r"(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)")  # Thank you, to http://emailregex.com/
 
@@ -116,8 +113,7 @@ class FeedPage(Handler):
                         posts=posts,
                         comments=comments,
                         username=username,
-                        userID=userID,
-                        hostURL=hostURL)
+                        userID=userID)
 
 
 class MainPage(Handler):
@@ -136,8 +132,7 @@ class MainPage(Handler):
                                 ORDER BY created DESC''' % userID)
             self.render("home.html",
                         posts=posts,
-                        username=username,
-                        hostURL=hostURL)
+                        username=username)
 
 
 class NewEntry(Handler):
@@ -152,8 +147,7 @@ class NewEntry(Handler):
         username = user.username
         self.render("newEntry.html",
                     error=error,
-                    username=username,
-                    hostURL=hostURL)
+                    username=username)
 
     def get(self):
         self.render_main()
@@ -194,8 +188,7 @@ class SignInPage(Handler):
         self.render("signin.html",
                     username=username,
                     error=error,
-                    users=users,
-                    hostURL=hostURL)
+                    users=users)
 
     def get(self):
         self.render_main()
@@ -243,7 +236,7 @@ class SignUpPage(Handler):
                     usernameVal=""):
         userIDcookie = self.request.cookies.get('userID')
         if validUser(userIDcookie):
-            return self.redirect(hostURL)
+            return self.redirect('/')
         self.render("signup.html",
                     username=username,
                     usernameError=usernameError,
@@ -251,7 +244,6 @@ class SignUpPage(Handler):
                     verifyError=verifyError,
                     emailError=emailError,
                     users=users,
-                    hostURL=hostURL,
                     usernameVal=usernameVal)
 
     def get(self):
@@ -323,8 +315,7 @@ class EditPost(Handler):
             return self.redirect('/')
         self.render("editpost.html",
                     post=post,
-                    username=username,
-                    hostURL=hostURL)
+                    username=username)
 
     def get(self):
         self.render_main()
@@ -446,9 +437,9 @@ class EditComment(Handler):
         userID = validUser(userIDcookie)
         commenter_userID = int(self.request.get("commenter_userID"))
         if not userID:
-            return self.redirect('%s/signin' % hostURL)
+            return self.redirect('/signin')
         elif userID != commenter_userID:
-            return self.redirect(hostURL)
+            return self.redirect('/')
         else:
             commentID = int(self.request.get("commentID"))
             edited_comment = self.request.get("edited_comment")

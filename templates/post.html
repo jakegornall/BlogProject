@@ -50,7 +50,7 @@
     <div class="modal-content">
       <div class="modal-header text-center"><h1>Edit Comment</h1></div>
       <div class="modal-body text-right">
-        <form action="{{hostURL}}/editcomment">
+        <form action="/editcomment">
           <input type="hidden" name="commentID" value="{{x.key().id()}}">
           <input type="hidden" name="commenter_userID" value="{{x.userID}}">
           <textarea name="edited_comment">{{x.comment}}</textarea>
@@ -70,7 +70,7 @@
       <h3>Are you sure you want to delete this comment?</h3>
       <div class="delete-keep-btns">
         <button class="btn btn-default btn-block keep-btn" data-dismiss="modal">Keep</button>
-        <a class="btn btn-danger btn-block delete-btn" href="{{hostURL}}/deletecomment?commentID={{x.key().id()}}">Delete</a>
+        <a class="btn btn-danger btn-block delete-btn" href="/deletecomment?commentID={{x.key().id()}}">Delete</a>
       </div>
     </div>
   </div>

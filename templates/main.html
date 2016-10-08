@@ -10,40 +10,21 @@
     <!-- Bootstrap Javascript -->
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.4/js/bootstrap.min.js" integrity="sha384-VjEeINv9OSwtWFLAtmc4JCtEJXXBub00gtSnszmspDLCtC0I4z4nqz7rEFbIZLLU" crossorigin="anonymous"></script>
     <!-- Custom CSS -->
-    <style type="text/css">
-        html, body {margin: 5px 5px 5px 5px; background-color: lightblue;}
-        .post-div {padding: 10px;}
-        .post-div h3 {margin-bottom: -8px; padding-bottom: -10px;}
-        .btm-border {border-bottom: 2px solid grey;}
-        .error-message {color:red;}
-        .created {margin-bottom: -8px; padding-bottom: 0px;}
-        .post-content {white-space: pre-line; margin-top: 6px;}
-        .nav-bar a {padding: 5px; font-weight: bold; font-size: 15px; margin-right: 20px; transition: font-size 1s;}
-        .nav-bar a:hover {font-size: 20px; transition: font-size 1s;}
-        .nav-bar {margin: 0 0 -20px 0; padding: 0 0 0 0;}
-        .delete-keep-btns {padding:5px;} 
-        textarea {
-            -webkit-box-sizing: border-box;
-            -moz-box-sizing: border-box;
-            box-sizing: border-box;
-            width: 100%;
-            resize: vertical;
-        }
-    </style>
+    <link rel="stylesheet" type="text/css" href="/css/styles.css">
 </head>
 <body>
     <div class="container">
         <div class="row">
             <div class="col-md-6">
                 {% if not username %}
-                <h6><a href="{{hostURL}}/signin">Sign In</a> | <a href="{{hostURL}}/signup">Sign Up</a></h6>
+                <h6><a href="/signin">Sign In</a> | <a href="/signup">Sign Up</a></h6>
                 {% else %}
                 <h6>Welcome, {{username}}!</h6>
                 {% endif %}
             </div>
             <div class="col-md-6 text-right">
                 {% if username %}
-                    <a href="{{hostURL}}/logout">Logout</a>
+                    <a href="/logout">Logout</a>
                 {% endif %}
 
             </div>  
@@ -51,9 +32,9 @@
         {% if username %}
         <div class="row nav-bar">
             <div class="col-md-12 text-center"> 
-                <a href="{{hostURL}}/">HOME</a>
-                <a href="{{hostURL}}/feed">FEED</a>
-                <a href="{{hostURL}}/newEntry">CREATE POST</a>            
+                <a href="/">HOME</a>
+                <a href="/feed">FEED</a>
+                <a href="/newEntry">CREATE POST</a>            
             </div>
         </div>
         {% endif %}

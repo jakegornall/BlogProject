@@ -12,7 +12,7 @@ To run on local host:
 5. Take note of which port will host the site. (defaults to Port: 8080)
 6. Click "Add".
 7. Select your directory and click "Run".
-8. Before opening in your browser, open main.py and change the global variable hostURL to "http://localhost:(your port from step 5)"
+8. In a browser of your choice, type "http://localhost:(port# from step 5)" in the url. You should see the site running on your local machine!
 
 To see deployed site visit: 
 http://www.blogproject-144722.appspot.com

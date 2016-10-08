@@ -9,7 +9,7 @@
         <h3>{{x.title}}</h3>
         <h6 class="created">{{x.created.strftime("%b %d, %Y")}}</h6>
         <h6>Author: {{x.username}}</h6>
-        <a class="btn btn-primary btn-xs" href="{{hostURL}}/edit?postID={{x.key().id()}}">edit post</a>
+        <a class="btn btn-primary btn-xs" href="/edit?postID={{x.key().id()}}">edit post</a>
         <a class="btn btn-danger btn-xs" href="" data-toggle="modal" data-target="#delete-post-{{x.key().id()}}-modal">delete post</a>
         <p class="post-content">{{x.post | safe}}</p>
     </div>
@@ -23,7 +23,7 @@
       <h3>Are you sure you want to delete this post?</h3>
       <div class="delete-keep-btns">
       	<button class="btn btn-default btn-block keep-btn" data-dismiss="modal">Keep</button>
-      	<a class="btn btn-danger btn-block delete-btn" href="{{hostURL}}/delete?postID={{x.key().id()}}">Delete</a>
+      	<a class="btn btn-danger btn-block delete-btn" href="/delete?postID={{x.key().id()}}">Delete</a>
       </div>
     </div>
   </div>
