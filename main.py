@@ -26,7 +26,7 @@ from posts import *
 from users import *
 from comments import *
 
-# sets up jinja2 environment
+# Sets up jinja2 environment
 template_dir = os.path.join(os.path.dirname(__file__), 'templates')
 jinja_env = jinja2.Environment(
     loader=jinja2.FileSystemLoader(template_dir),
@@ -104,7 +104,7 @@ class FeedPage(Handler):
         userIDcookie = self.request.cookies.get("userID")
         userID = validUser(userIDcookie)
         if not userID:
-            return self.redirect('%s/signin' % hostURL)
+            return self.redirect('/signin')
         else:
             user = Users.get_by_id(userID)
             username = user.username
@@ -126,7 +126,7 @@ class MainPage(Handler):
         userIDcookie = self.request.cookies.get("userID")
         userID = validUser(userIDcookie)
         if not userID:
-            return self.redirect('%s/signin' % hostURL)
+            return self.redirect('/signin')
         else:
             user = Users.get_by_id(userID)
             username = user.username
@@ -146,7 +146,7 @@ class NewEntry(Handler):
         userIDcookie = self.request.cookies.get("userID")
         userID = validUser(userIDcookie)
         if not userID:
-            return self.redirect('%s/signin' % hostURL)
+            return self.redirect('/signin')
 
         user = Users.get_by_id(userID)
         username = user.username
@@ -162,7 +162,7 @@ class NewEntry(Handler):
         userIDcookie = self.request.cookies.get("userID")
         userID = validUser(userIDcookie)
         if not userID:
-            return self.redirect('%s/signin' % hostURL)
+            return self.redirect('/signin')
 
         user = Users.get_by_id(userID)
         username = user.username
@@ -185,7 +185,7 @@ class NewEntry(Handler):
                                  username=username)
             new_post.put()
             time.sleep(1)  # allows time for new db entry to post
-            return self.redirect(hostURL)
+            return self.redirect('/')
 
 
 class SignInPage(Handler):
@@ -228,7 +228,7 @@ class SignInPage(Handler):
         else:
             self.response.headers.add_header('Set-Cookie',
                                              'userID=%s' % make_cookie(userID))
-            return self.redirect(hostURL)
+            return self.redirect('/')
 
 
 class SignUpPage(Handler):
@@ -302,7 +302,7 @@ class SignUpPage(Handler):
             userID = user.key().id()
             self.response.headers.add_header('Set-Cookie',
                                              'userID=%s' % make_cookie(userID))
-            return self.redirect(hostURL)
+            return self.redirect('/')
 
 
 class EditPost(Handler):
@@ -311,7 +311,7 @@ class EditPost(Handler):
         userIDcookie = self.request.cookies.get("userID")
         userID = validUser(userIDcookie)
         if not userID:
-            return self.redirect('%s/signin' % hostURL)
+            return self.redirect('/signin')
 
         user = Users.get_by_id(userID)
         username = user.username
@@ -320,7 +320,7 @@ class EditPost(Handler):
         post_userID = BlogPosts.get_by_id(int(postID)).userID
 
         if userID != post_userID:
-            return self.redirect(hostURL)
+            return self.redirect('/')
         self.render("editpost.html",
                     post=post,
                     username=username,
@@ -334,7 +334,7 @@ class EditPost(Handler):
         userID = validUser(userIDcookie)
 
         if not userID:
-            return self.redirect('%s/signin' % hostURL)
+            return self.redirect('/signin')
 
         user = Users.get_by_id(userID)
         username = user.username
@@ -343,7 +343,7 @@ class EditPost(Handler):
         post_userID = BlogPosts.get_by_id(int(postID)).userID
 
         if userID != post_userID:
-            return self.redirect(hostURL)
+            return self.redirect('/')
 
         userID = check_cookie(userIDcookie)
         user_key = db.Key.from_path('Users', long(userID))
@@ -368,7 +368,7 @@ class EditPost(Handler):
             blogEntry.post = post
             blogEntry.put()
             time.sleep(1)  # allows time for new db entry to post
-            return self.redirect(hostURL)
+            return self.redirect('/')
 
 
 class SinglePostPage(Handler):
@@ -377,7 +377,7 @@ class SinglePostPage(Handler):
         userIDcookie = self.request.cookies.get("userID")
         userID = validUser(userIDcookie)
         if not userID:
-            return self.redirect('%s/signin' % hostURL)
+            return self.redirect('/signin')
         else:
             user = Users.get_by_id(userID)
             username = user.username
@@ -394,7 +394,7 @@ class SinglePostPage(Handler):
         userIDcookie = self.request.cookies.get("userID")
         userID = validUser(userIDcookie)
         if not userID:
-            return self.redirect('%s/signin' % hostURL)
+            return self.redirect('/signin')
         else:
             user = Users.get_by_id(userID)
             username = user.username
@@ -420,7 +420,7 @@ class Logout(Handler):
     '''Logout Page Handler'''
     def get(self):
         self.response.headers.add_header('Set-Cookie', 'userID=')
-        return self.redirect('%s/signup' % hostURL)
+        return self.redirect('/signup')
 
 
 class DeletePost(Handler):
@@ -431,12 +431,12 @@ class DeletePost(Handler):
         post_userID = post_to_delete.userID
         currentUserID = int(check_cookie(self.request.cookies.get("userID")))
         if not currentUserID:
-            return self.redirect(hostURL)
+            return self.redirect('/')
         if currentUserID == post_userID:
             post_to_delete.delete()
 
         time.sleep(1)
-        return self.redirect(hostURL)
+        return self.redirect('/')
 
 
 class EditComment(Handler):
@@ -457,7 +457,7 @@ class EditComment(Handler):
             comment.comment = edited_comment
             comment.put()
             time.sleep(1)
-            return self.redirect('%s/permalink?postID=%s' % (hostURL, postID))
+            return self.redirect('/permalink?postID=%s' % postID)
 
 
 
@@ -468,18 +468,18 @@ class DeleteComment(Handler):
         userIDcookie = self.request.cookies.get("userID")
         userID = validUser(userIDcookie)
         if not userID:
-            return self.redirect('%s/signin' % hostURL)
+            return self.redirect('/signin')
         else:
             commentID = int(self.request.get("commentID"))
             commentObject = Comments.get_by_id(commentID)
             commenter_userID = commentObject.userID
             postID = commentObject.postID
             if userID != commenter_userID:
-                return self.redirect(hostURL)
+                return self.redirect('/')
             else:
                 commentObject.delete()
                 time.sleep(1)
-                return self.redirect('%s/permalink?postID=%s' % (hostURL, postID))
+                return self.redirect('/permalink?postID=%s' % postID)
 
 class PostLike(Handler):
     '''Handles blog post like requests'''
@@ -489,17 +489,20 @@ class PostLike(Handler):
         postID = self.request.get("post-like")
         post = BlogPosts.get_by_id(int(postID))
         if not userID:
-            return self.redirect('%s/signin' % hostURL)
-        elif userID in post.likes:
-            post.likes.remove(userID)
-            post.put()
-            time.sleep(.2)
-            return self.redirect('%s/feed' % hostURL)
+            return self.redirect('/signin')
+        elif userID != post.userID:
+            if userID in post.likes:
+                post.likes.remove(userID)
+                post.put()
+                time.sleep(.2)
+                return self.redirect('/feed')
+            else:
+                post.likes.append(userID)
+                post.put()
+                time.sleep(.2)
+                return self.redirect('/feed')
         else:
-            post.likes.append(userID)
-            post.put()
-            time.sleep(.2)
-            return self.redirect('%s/feed' % hostURL)
+            return self.redirect('/feed')
 
 # Maps URLs to Handlers
 app = webapp2.WSGIApplication([
